@@ -11,7 +11,7 @@
 - **Git instalado** en tu computadora — [git-scm.com](https://git-scm.com/downloads).
 - **Un editor de código** — recomendado [Visual Studio Code](https://code.visualstudio.com/) (gratuito).
 - **Markdown básico** — no hace falta saberlo de memoria, alcanza con tener la sintaxis a mano mientras escribís (ver recursos más abajo).
-- **Para los diagramas:** no hace falta instalar nada — se pueden visualizar y editar directamente en [plantuml.com/plantuml/uml/](https://www.plantuml.com/plantuml/uml/). Si preferís trabajar en tu editor, existen extensiones de PlantUML para VS Code.
+- **Para los diagramas:** no hace falta instalar nada — se pueden visualizar y editar directamente en [plantuml.com/plantuml/uml/](https://www.plantuml.com/plantuml/uml/). Si preferís trabajar en tu editor, existen extensiones de PlantUML para VS Code. Para verlos dibujados en GitHub o generarlos en tu máquina, ver [Ver los diagramas PlantUML](#ver-los-diagramas-plantuml) más abajo.
 
 ---
 
@@ -53,6 +53,63 @@ git push
 - Antes de empezar a trabajar, siempre `git pull` primero.
 - Mensajes de commit descriptivos — no "cambios" o "asdf", sino qué hiciste realmente. Esto también es parte de lo que se evalúa como evidencia del proceso.
 - Si dos personas editan el mismo archivo al mismo tiempo puede aparecer un **conflicto** — git lo marca en el archivo con `<<<<<<<`, `=======`, `>>>>>>>`. Hay que elegir qué versión dejar y sacar esas marcas a mano. Si se traban, mejor consultar en clase que forzar algo — **nunca uses `git push --force`**, puede borrar el trabajo de tus compañeros.
+
+---
+
+## Ver los diagramas PlantUML
+
+GitHub **no dibuja** los archivos `.puml`: si abrís `diagramas/casos-de-uso.puml` en GitHub,
+vas a ver el código, no el diagrama. Hay dos formas de verlos dibujados.
+
+### Opción 1 — Dibujados en GitHub, dentro de un `.md` (no hay que instalar nada)
+
+Se le pide la imagen al servidor público de PlantUML, que lee el `.puml` desde GitHub y
+devuelve el diagrama. Pegá esta línea en el `.md` donde quieras mostrarlo (por ejemplo, en
+`docs/casos-de-uso.md`, debajo de "Diagrama general"):
+
+```markdown
+![Diagrama de casos de uso](https://www.plantuml.com/plantuml/proxy?cache=no&fmt=svg&src=https://raw.githubusercontent.com/USUARIO/REPO/main/diagramas/casos-de-uso.puml)
+```
+
+Cambiá `USUARIO/REPO` por el usuario y el nombre de su repo (los que aparecen en la URL de
+GitHub), y `casos-de-uso.puml` por el archivo que quieras mostrar (`er.puml`, etc.).
+
+- El diagrama se actualiza solo cuando suben cambios al `.puml` (a veces tarda unos minutos
+  en verse, por la caché de GitHub).
+- Si el `.puml` tiene un error, en lugar del diagrama aparece una imagen con el error: sirve
+  para darse cuenta.
+- **Solo funciona si el repo es público**: si es privado, el servidor de PlantUML no puede
+  leer el archivo.
+
+### Opción 2 — En tu máquina, con Docker (sin instalar Java ni PlantUML)
+
+Si tenés [Docker](https://docs.docker.com/get-docker/) instalado, podés generar todos los
+diagramas del repo como imágenes SVG. Parado en la carpeta raíz del repo:
+
+**Linux o Mac:**
+
+```bash
+docker run --rm -u "$(id -u):$(id -g)" -v "$PWD/diagramas":/data plantuml/plantuml -tsvg "/data/**.puml"
+```
+
+**Windows (PowerShell):**
+
+```powershell
+docker run --rm -v "${PWD}/diagramas:/data" plantuml/plantuml -tsvg "/data/**.puml"
+```
+
+Cada `casos-de-uso.puml` genera un `casos-de-uso.svg` al lado, que se abre con cualquier
+navegador. Si algún diagrama tiene un error, el comando muestra
+`Error line N in file: ...` con el archivo y la línea.
+
+Si además querés un **editor con vista previa en el navegador**, levantá el servidor de
+PlantUML en tu máquina y entrá a <http://localhost:8080>:
+
+```bash
+docker run -d --rm --name plantuml -p 8080:8080 plantuml/plantuml-server:jetty
+```
+
+Para apagarlo: `docker stop plantuml`.
 
 ---
 
